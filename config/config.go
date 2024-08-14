@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"log"
 	"os"
 
@@ -10,47 +9,44 @@ import (
 
 type Config struct {
 	ServerAddress string
-	DBPath        string
+	DatabasePath  string
 	SecretKey     string
 }
 
 var cfg *Config
 
-func LoadConfig() (*Config, error) {
+func LoadConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	serverAddress, err := getEnv("SERVER_ADRESS")
-	if err != nil {
-		return nil, err
-	}
-
-	dbPath, err := getEnv("DATABASE_PATH")
-	if err != nil {
-		return nil, err
-	}
-
-	secretKey, err := getEnv("SECRET_KEY")
-	if err != nil {
-		return nil, err
+		log.Fatal("Config: Error loading .env file")
 	}
 
 	log.Printf("Loaded .env file")
 
-	return &Config{
-		ServerAddress: serverAddress,
-		DBPath:        dbPath,
-		SecretKey:     secretKey,
-	}, nil
-}
-
-func getEnv(key string) (string, error) {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return "", errors.New("environment variable not set: " + key)
+	cfg = &Config{
+		ServerAddress: getEnv("SERVER_ADDRESS"),
+		DatabasePath:  getEnv("DATABASE_PATH"),
+		SecretKey:     getEnv("SECRET_KEY"),
 	}
 
-	return value, nil
+	log.Printf("Set env variables")
+
+	return cfg
+}
+
+func GetConfig() *Config {
+	if cfg == nil {
+		log.Fatal("Config not initialized")
+	}
+
+	return cfg
+}
+
+func getEnv(key string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		log.Fatal("Config: Error loading env variable with key: ", key)
+	}
+
+	return value
 }

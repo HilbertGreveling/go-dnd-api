@@ -11,9 +11,10 @@ import (
 
 var db *sql.DB
 
-func InitDB(cfg *config.Config) {
+func InitDB() {
 	var err error
-	db, err = sql.Open("sqlite3", cfg.DBPath)
+	cfg := config.GetConfig()
+	db, err = sql.Open("sqlite3", cfg.DatabasePath)
 
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %v", err)

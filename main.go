@@ -13,11 +13,9 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	// Initialize database connection
-	db.InitDB(cfg)
+	db.InitDB()
 	defer db.CloseDB()
 
-	// Setup routes
 	router := routes.SetupRoutes()
 
 	stack := middleware.CreateStack(

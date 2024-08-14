@@ -13,7 +13,7 @@ type ErrorResponse struct {
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg := config.LoadConfig()
+		cfg := config.GetConfig()
 
 		if r.Header.Get("Authorization") != cfg.SecretKey {
 			w.Header().Set("Content-Type", "application/json")

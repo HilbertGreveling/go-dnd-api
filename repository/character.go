@@ -2,20 +2,20 @@ package repository
 
 const (
 	SelectCharacterByID = `
-		SELECT id, name, class, level, race_id, description
+		SELECT id, name, level, description
 		FROM characters
 		WHERE id = ?`
 
 	SelectAllCharacters = `
-		SELECT id, name, class, level, race_id, description
+		SELECT id, name, level, description
 		FROM characters`
 
 	InsertCharacter = `
-		INSERT INTO characters (name, class, level, race_id, description)
+		INSERT INTO characters (name, level, description)
 		VALUES (?, ?, ?, ?, ?)`
 
 	UpdateCharacter = `
 		UPDATE characters
-		SET name = ?, class = ?, level = ?, race_id = ?, description = ?
+		SET name = ?, level = ?, description = ?
 		WHERE id = ?`
 )
