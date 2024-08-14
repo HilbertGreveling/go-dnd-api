@@ -5,6 +5,7 @@ import (
 
 	"github.com/hilbertgreveling/dnd-character-api/handlers"
 	"github.com/hilbertgreveling/dnd-character-api/repository"
+	"github.com/hilbertgreveling/dnd-character-api/responses"
 )
 
 func SetupRoutes() *http.ServeMux {
@@ -15,10 +16,11 @@ func SetupRoutes() *http.ServeMux {
 
 	mux.HandleFunc("GET /ping", pingHandler.Ping)
 
-	// Character
+	jsonResponse := responses.NewDefaultJSONResponse()
 
+	// Character
 	repo := repository.NewCharacterRepositorySQLite()
-	characterHandler := handlers.NewCharacterHandler(repo)
+	characterHandler := handlers.NewCharacterHandler(repo, jsonResponse)
 
 	mux.HandleFunc("GET /characters", characterHandler.GetAllCharactersHandler)
 

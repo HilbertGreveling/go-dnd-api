@@ -19,6 +19,7 @@ func main() {
 	router := routes.SetupRoutes()
 
 	stack := middleware.CreateStack(
+		middleware.CORS,
 		middleware.AuthMiddleware,
 		middleware.Logging,
 	)
