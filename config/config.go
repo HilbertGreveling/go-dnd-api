@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -15,32 +16,41 @@ type Config struct {
 
 var cfg *Config
 
-func LoadConfig() *Config {
-	if cfg == nil {
-		if err := godotenv.Load(); err != nil {
-			log.Fatal("Error loading .env file")
-		}
+func LoadConfig() (*Config, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-		cfg = &Config{
-			ServerAddress: getEnv("SERVER_ADDRESS", ""),
-			DBPath:        getEnv("DB_PATH", ""),
-			SecretKey:     getEnv("SECRET_KEY", ""),
-		}
+	serverAddress, err := getEnv("SERVER_ADRESS")
+	if err != nil {
+		return nil, err
+	}
 
-		if cfg.ServerAddress == "" || cfg.DBPath == "" || cfg.SecretKey == "" {
-			log.Fatal("Missing required environment variables")
-		}
+	dbPath, err := getEnv("DATABASE_PATH")
+	if err != nil {
+		return nil, err
+	}
+
+	secretKey, err := getEnv("SECRET_KEY")
+	if err != nil {
+		return nil, err
 	}
 
 	log.Printf("Loaded .env file")
 
-	return cfg
+	return &Config{
+		ServerAddress: serverAddress,
+		DBPath:        dbPath,
+		SecretKey:     secretKey,
+	}, nil
 }
 
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+func getEnv(key string) (string, error) {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return "", errors.New("environment variable not set: " + key)
 	}
 
-	return fallback
+	return value, nil
 }
