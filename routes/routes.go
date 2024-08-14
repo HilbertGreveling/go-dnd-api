@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/hilbertgreveling/dnd-character-api/handlers"
+	"github.com/hilbertgreveling/dnd-character-api/repository"
 )
 
 func SetupRoutes() *http.ServeMux {
@@ -16,7 +17,8 @@ func SetupRoutes() *http.ServeMux {
 
 	// Character
 
-	characterHandler := &handlers.CharacterHandler{}
+	repo := repository.NewCharacterRepositorySQLite()
+	characterHandler := handlers.NewCharacterHandler(repo)
 
 	mux.HandleFunc("GET /characters", characterHandler.GetAllCharactersHandler)
 

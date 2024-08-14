@@ -4,24 +4,24 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/hilbertgreveling/dnd-character-api/models"
+	"github.com/hilbertgreveling/dnd-character-api/repository"
 )
 
-type CharacterHandler struct{}
+type CharacterHandler struct {
+	repo repository.CharacterRepository
+}
+
+func NewCharacterHandler(repo repository.CharacterRepository) *CharacterHandler {
+	return &CharacterHandler{repo: repo}
+}
 
 func (h *CharacterHandler) GetAllCharactersHandler(w http.ResponseWriter, r *http.Request) {
-	characters, err := models.GetAllCharacters()
+	characters, err := h.repo.GetAll()
 	if err != nil {
-		http.Error(w, "Failed to retrieve characters", http.StatusInternalServerError)
-		return
-	}
-
-	response, err := json.Marshal(characters)
-	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "Unable to retrieve characters", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(response)
+	json.NewEncoder(w).Encode(characters)
 }
