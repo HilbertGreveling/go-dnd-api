@@ -22,9 +22,11 @@ func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
 	repo := repository.NewCharacterRepositorySQLite(db)
 	characterHandler := handlers.NewCharacterHandler(repo, jsonResponse)
 
-	mux.HandleFunc("GET /characters", characterHandler.GetAllCharactersHandler)
 	mux.HandleFunc("POST /characters/new", characterHandler.CreateCharacterHandler)
+	mux.HandleFunc("GET /characters", characterHandler.GetAllCharactersHandler)
 	mux.HandleFunc("GET /characters/{id}", characterHandler.GetCharacterHandler)
+	mux.HandleFunc("PUT /characters/{id}", characterHandler.UpdateCharacterHandler)
+	mux.HandleFunc("DELETE /characters/{id}", characterHandler.DeleteCharacterHandler)
 
 	return mux
 }

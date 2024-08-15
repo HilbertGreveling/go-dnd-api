@@ -6,7 +6,7 @@ import (
 )
 
 type JSONResponse interface {
-	Send(w http.ResponseWriter, data interface{}, statusCode int)
+	Send(w http.ResponseWriter, data interface{}, message string, statusCode int)
 	Error(w http.ResponseWriter, message string, statusCode int)
 }
 
@@ -16,10 +16,16 @@ func NewDefaultJSONResponse() *DefaultJSONResponse {
 	return &DefaultJSONResponse{}
 }
 
-func (r *DefaultJSONResponse) Send(w http.ResponseWriter, data interface{}, statusCode int) {
+func (r *DefaultJSONResponse) Send(w http.ResponseWriter, data interface{}, message string, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(data); err != nil {
+
+	response := map[string]interface{}{
+		"data":    data,
+		"message": message,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
 	}
 }
