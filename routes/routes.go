@@ -18,6 +18,13 @@ func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
 	db := db.GetDB()
 	jsonResponse := responses.NewDefaultJSONResponse()
 
+	// User
+	userRepo := repository.NewUserRepositorySQLite(db)
+	userHandler := handlers.NewUserHandler(userRepo, jsonResponse)
+
+	mux.HandleFunc("POST /users/register", userHandler.RegisterUserHandler)
+	mux.HandleFunc("GET /users/{id}", userHandler.GetUserHandler)
+
 	// Character
 	repo := repository.NewCharacterRepositorySQLite(db)
 	characterHandler := handlers.NewCharacterHandler(repo, jsonResponse)
