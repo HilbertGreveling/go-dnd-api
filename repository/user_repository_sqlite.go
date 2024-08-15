@@ -24,15 +24,13 @@ func (repo *UserRepositorySQLite) Create(user *models.User) error {
 	return nil
 }
 
-func (repo *UserRepositorySQLite) GetByUsername(username string) (*models.User, error) {
-	query := "SELECT id, username, password FROM users WHERE username = ?"
-	row := repo.db.QueryRow(query, username)
-
-	user := &models.User{}
-	err := row.Scan(&user.ID, &user.Username, &user.Password)
+func (repo *UserRepositorySQLite) GetByID(id int) (*models.UserResponse, error) {
+	user := &models.UserResponse{}
+	query := "SELECT id, username FROM users WHERE id = ?"
+	err := repo.db.QueryRow(query, id).Scan(&user.ID, &user.Username)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+		if err == sql.ErrNoRows {
+			return nil, errors.New("user not found")
 		}
 		return nil, err
 	}

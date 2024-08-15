@@ -16,8 +16,8 @@ func NewCharacterRepositorySQLite(db *sql.DB) *CharacterRepositorySQLite {
 }
 
 func (r *CharacterRepositorySQLite) Create(character *models.Character) error {
-	query := "INSERT INTO characters (name, level, description) VALUES (?, ?, ?)"
-	result, err := r.db.Exec(query, character.Name, character.Level, character.Description)
+	query := "INSERT INTO characters (name, level, description, user_id) VALUES (?, ?, ?, ?)"
+	result, err := r.db.Exec(query, character.Name, character.Level, character.Description, character.UserID)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (r *CharacterRepositorySQLite) Create(character *models.Character) error {
 }
 
 func (r *CharacterRepositorySQLite) GetAll() ([]*models.Character, error) {
-	query := "SELECT id, name, level, description FROM characters"
+	query := "SELECT id, name, level, description, user_id FROM characters"
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (r *CharacterRepositorySQLite) GetAll() ([]*models.Character, error) {
 	var characters []*models.Character
 	for rows.Next() {
 		var character models.Character
-		if err := rows.Scan(&character.ID, &character.Name, &character.Level, &character.Description); err != nil {
+		if err := rows.Scan(&character.ID, &character.Name, &character.Level, &character.Description, &character.UserID); err != nil {
 			return nil, err
 		}
 		characters = append(characters, &character)
@@ -52,8 +52,8 @@ func (r *CharacterRepositorySQLite) GetAll() ([]*models.Character, error) {
 
 func (r *CharacterRepositorySQLite) GetByID(id int) (*models.Character, error) {
 	var character models.Character
-	query := "SELECT id, name, level, description FROM characters WHERE id = ?"
-	err := r.db.QueryRow(query, id).Scan(&character.ID, &character.Name, &character.Level, &character.Description)
+	query := "SELECT id, name, level, description, user_id FROM characters WHERE id = ?"
+	err := r.db.QueryRow(query, id).Scan(&character.ID, &character.Name, &character.Level, &character.Description, &character.UserID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -64,8 +64,8 @@ func (r *CharacterRepositorySQLite) GetByID(id int) (*models.Character, error) {
 }
 
 func (r *CharacterRepositorySQLite) Update(character *models.Character) error {
-	query := "UPDATE characters SET name = ?, level = ?, description = ? WHERE id = ?"
-	_, err := r.db.Exec(query, character.Name, character.Level, character.Description, character.ID)
+	query := "UPDATE characters SET name = ?, level = ?, description = ?, user_id WHERE id = ?"
+	_, err := r.db.Exec(query, character.Name, character.Level, character.Description, character.UserID, character.ID)
 	return err
 }
 

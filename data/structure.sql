@@ -9,6 +9,6 @@ CREATE TABLE characters (
     name TEXT NOT NULL,
     level INTEGER NOT NULL,
     description TEXT,
-    user_id INTEGER,
+    user_id INTEGER NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
