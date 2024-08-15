@@ -6,8 +6,8 @@ import (
 )
 
 type JSONResponse interface {
-	Send(w http.ResponseWriter, data interface{}, message string, statusCode int)
-	Error(w http.ResponseWriter, message string, statusCode int)
+	WriteJSON(w http.ResponseWriter, data interface{}, message string, statusCode int)
+	WriteError(w http.ResponseWriter, message string, statusCode int)
 }
 
 type DefaultJSONResponse struct{}
@@ -16,7 +16,7 @@ func NewDefaultJSONResponse() *DefaultJSONResponse {
 	return &DefaultJSONResponse{}
 }
 
-func (r *DefaultJSONResponse) Send(w http.ResponseWriter, data interface{}, message string, statusCode int) {
+func (r *DefaultJSONResponse) WriteJSON(w http.ResponseWriter, data interface{}, message string, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
@@ -30,7 +30,7 @@ func (r *DefaultJSONResponse) Send(w http.ResponseWriter, data interface{}, mess
 	}
 }
 
-func (r *DefaultJSONResponse) Error(w http.ResponseWriter, message string, statusCode int) {
+func (r *DefaultJSONResponse) WriteError(w http.ResponseWriter, message string, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	errResponse := map[string]string{"error": message}
