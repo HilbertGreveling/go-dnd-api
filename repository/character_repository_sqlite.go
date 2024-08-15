@@ -64,7 +64,7 @@ func (r *CharacterRepositorySQLite) GetByID(id int) (*models.Character, error) {
 }
 
 func (r *CharacterRepositorySQLite) Update(character *models.Character) error {
-	query := "UPDATE characters SET name = ?, level = ?, description = ?, user_id WHERE id = ?"
+	query := "UPDATE characters SET name = ?, level = ?, description = ?, user_id = ? WHERE id = ?"
 	_, err := r.db.Exec(query, character.Name, character.Level, character.Description, character.UserID, character.ID)
 	return err
 }
