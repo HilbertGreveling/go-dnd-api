@@ -8,9 +8,7 @@ import (
 	"github.com/hilbertgreveling/dnd-character-api/responses"
 )
 
-func SetupRoutes() *http.ServeMux {
-	mux := http.NewServeMux()
-
+func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
 	// Ping
 	pingHandler := handlers.NewPingHandler()
 

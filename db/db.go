@@ -5,16 +5,14 @@ import (
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
-
-	"github.com/hilbertgreveling/dnd-character-api/config"
 )
 
 var db *sql.DB
 
-func InitDB() {
+func InitDB(addr string) {
 	var err error
-	cfg := config.GetConfig()
-	db, err = sql.Open("sqlite3", cfg.DatabasePath)
+
+	db, err = sql.Open("sqlite3", addr)
 
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %v", err)
