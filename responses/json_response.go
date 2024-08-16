@@ -5,24 +5,20 @@ import (
 	"net/http"
 )
 
-type JSONResponse interface {
-	WriteJSON(w http.ResponseWriter, data interface{}, message string, statusCode int)
-	WriteError(w http.ResponseWriter, message string, statusCode int)
+type JSONResponse struct{}
+
+func NewDefaultJSONResponse() *JSONResponse {
+	return &JSONResponse{}
 }
 
-type DefaultJSONResponse struct{}
-
-func NewDefaultJSONResponse() *DefaultJSONResponse {
-	return &DefaultJSONResponse{}
-}
-
-func (r *DefaultJSONResponse) WriteJSON(w http.ResponseWriter, data interface{}, message string, statusCode int) {
+func (r *JSONResponse) WriteResponse(w http.ResponseWriter, data interface{}, message string, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
 	response := map[string]interface{}{
-		"data":    data,
+		"status":  statusCode,
 		"message": message,
+		"data":    data,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -30,11 +26,6 @@ func (r *DefaultJSONResponse) WriteJSON(w http.ResponseWriter, data interface{},
 	}
 }
 
-func (r *DefaultJSONResponse) WriteError(w http.ResponseWriter, message string, statusCode int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	errResponse := map[string]string{"error": message}
-	if err := json.NewEncoder(w).Encode(errResponse); err != nil {
-		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
-	}
+func (r *JSONResponse) WriteError(w http.ResponseWriter, message string, statusCode int) {
+	r.WriteResponse(w, nil, message, statusCode)
 }

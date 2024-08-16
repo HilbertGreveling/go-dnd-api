@@ -13,10 +13,10 @@ import (
 
 type UserHandler struct {
 	repo     repository.UserRepository
-	response responses.JSONResponse
+	response responses.Response
 }
 
-func NewUserHandler(repo repository.UserRepository, response responses.JSONResponse) *UserHandler {
+func NewUserHandler(repo repository.UserRepository, response responses.Response) *UserHandler {
 	return &UserHandler{
 		repo:     repo,
 		response: response,
@@ -47,7 +47,7 @@ func (h *UserHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 		Username: user.Username,
 	}
 
-	h.response.WriteJSON(w, userResponse, "User registered successfully", http.StatusCreated)
+	h.response.WriteResponse(w, userResponse, "User registered successfully", http.StatusCreated)
 }
 
 func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,5 +69,5 @@ func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.response.WriteJSON(w, user, "OK", http.StatusOK)
+	h.response.WriteResponse(w, user, "OK", http.StatusOK)
 }

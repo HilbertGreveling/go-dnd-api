@@ -12,10 +12,10 @@ import (
 
 type CharacterHandler struct {
 	repo     repository.CharacterRepository
-	response responses.JSONResponse
+	response responses.Response
 }
 
-func NewCharacterHandler(repo repository.CharacterRepository, response responses.JSONResponse) *CharacterHandler {
+func NewCharacterHandler(repo repository.CharacterRepository, response responses.Response) *CharacterHandler {
 	return &CharacterHandler{
 		repo:     repo,
 		response: response,
@@ -34,7 +34,7 @@ func (h *CharacterHandler) CreateCharacterHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	h.response.WriteJSON(w, character, "OK", http.StatusOK)
+	h.response.WriteResponse(w, character, "OK", http.StatusOK)
 }
 
 func (h *CharacterHandler) GetAllCharactersHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +44,7 @@ func (h *CharacterHandler) GetAllCharactersHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	h.response.WriteJSON(w, characters, "OK", http.StatusOK)
+	h.response.WriteResponse(w, characters, "OK", http.StatusOK)
 }
 
 func (h *CharacterHandler) GetCharacterHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +66,7 @@ func (h *CharacterHandler) GetCharacterHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	h.response.WriteJSON(w, character, "OK", http.StatusOK)
+	h.response.WriteResponse(w, character, "OK", http.StatusOK)
 }
 
 func (h *CharacterHandler) UpdateCharacterHandler(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +96,7 @@ func (h *CharacterHandler) UpdateCharacterHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	h.response.WriteJSON(w, updatedCharacter, "Ok", http.StatusOK)
+	h.response.WriteResponse(w, updatedCharacter, "Ok", http.StatusOK)
 }
 
 func (h *CharacterHandler) DeleteCharacterHandler(w http.ResponseWriter, r *http.Request) {
@@ -118,5 +118,5 @@ func (h *CharacterHandler) DeleteCharacterHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	h.response.WriteJSON(w, nil, "Character deleted", http.StatusOK)
+	h.response.WriteResponse(w, nil, "Character deleted", http.StatusOK)
 }
