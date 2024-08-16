@@ -8,17 +8,16 @@ import (
 	"github.com/hilbertgreveling/dnd-character-api/services"
 )
 
-func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
+func SetupRoutes(mux *http.ServeMux, response responses.Response) *http.ServeMux {
 	// Ping
 	pingHandler := handlers.NewPingHandler()
 
 	mux.HandleFunc("GET /ping", pingHandler.Ping)
 
-	jsonResponse := responses.NewDefaultJSONResponse()
 	services := services.SetupServices()
 
 	// User
-	userHandler := handlers.NewUserHandler(services.UserService, jsonResponse)
+	userHandler := handlers.NewUserHandler(services.UserService, response)
 
 	mux.HandleFunc("POST /users/register", userHandler.RegisterUserHandler)
 	mux.HandleFunc("GET /users/login", userHandler.LoginHandler)
@@ -26,7 +25,7 @@ func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("GET /users/{id}", userHandler.GetUserHandler)
 
 	// Character
-	characterHandler := handlers.NewCharacterHandler(services.CharacterService, jsonResponse)
+	characterHandler := handlers.NewCharacterHandler(services.CharacterService, response)
 
 	mux.HandleFunc("POST /characters/new", characterHandler.CreateCharacterHandler)
 	mux.HandleFunc("GET /characters", characterHandler.GetAllCharactersHandler)

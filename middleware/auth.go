@@ -1,24 +1,24 @@
 package middleware
 
 import (
-	"encoding/json"
 	"net/http"
+	"strings"
 
-	"github.com/hilbertgreveling/dnd-character-api/config"
+	"github.com/hilbertgreveling/dnd-character-api/utils"
 )
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg := config.GetConfig()
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+			return
+		}
 
-		if r.Header.Get("Authorization") != cfg.SecretKey {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(ErrorResponse{Message: "Permission Denied"})
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		_, err := utils.ValidateJWT(tokenStr)
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 

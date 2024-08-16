@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/hilbertgreveling/dnd-character-api/middleware"
+	"github.com/hilbertgreveling/dnd-character-api/responses"
 	"github.com/hilbertgreveling/dnd-character-api/routes"
 )
 
@@ -18,7 +19,8 @@ func NewAPIServer(addr string) *APIServer {
 
 func (s *APIServer) Serve() {
 	mux := http.NewServeMux()
-	mux = routes.SetupRoutes(mux)
+	response := responses.NewDefaultJSONResponse()
+	mux = routes.SetupRoutes(mux, response)
 
 	stack := middleware.CreateStack(
 		middleware.CORS,
