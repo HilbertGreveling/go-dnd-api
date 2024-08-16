@@ -6,18 +6,18 @@ import (
 	"strconv"
 
 	"github.com/hilbertgreveling/dnd-character-api/models"
-	"github.com/hilbertgreveling/dnd-character-api/repository"
 	"github.com/hilbertgreveling/dnd-character-api/responses"
+	"github.com/hilbertgreveling/dnd-character-api/services"
 )
 
 type CharacterHandler struct {
-	repo     repository.CharacterRepository
+	service  services.CharacterService
 	response responses.Response
 }
 
-func NewCharacterHandler(repo repository.CharacterRepository, response responses.Response) *CharacterHandler {
+func NewCharacterHandler(service services.CharacterService, response responses.Response) *CharacterHandler {
 	return &CharacterHandler{
-		repo:     repo,
+		service:  service,
 		response: response,
 	}
 }
@@ -29,7 +29,7 @@ func (h *CharacterHandler) CreateCharacterHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	if err := h.repo.Create(&character); err != nil {
+	if err := h.service.Create(&character); err != nil {
 		h.response.WriteError(w, "Error creating character", http.StatusInternalServerError)
 		return
 	}
@@ -38,7 +38,7 @@ func (h *CharacterHandler) CreateCharacterHandler(w http.ResponseWriter, r *http
 }
 
 func (h *CharacterHandler) GetAllCharactersHandler(w http.ResponseWriter, r *http.Request) {
-	characters, err := h.repo.GetAll()
+	characters, err := h.service.GetAll()
 	if err != nil {
 		h.response.WriteError(w, "Unable to retrieve characters", http.StatusInternalServerError)
 		return
@@ -55,7 +55,7 @@ func (h *CharacterHandler) GetCharacterHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	character, err := h.repo.GetByID(id)
+	character, err := h.service.GetByID(id)
 	if err != nil {
 		h.response.WriteError(w, "Error retrieving character", http.StatusInternalServerError)
 		return
@@ -83,7 +83,7 @@ func (h *CharacterHandler) UpdateCharacterHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	existingCharacter, err := h.repo.GetByID(id)
+	existingCharacter, err := h.service.GetByID(id)
 	if err != nil {
 		h.response.WriteError(w, "Error retrieving character", http.StatusInternalServerError)
 		return
@@ -91,7 +91,7 @@ func (h *CharacterHandler) UpdateCharacterHandler(w http.ResponseWriter, r *http
 
 	updatedCharacter.ID = existingCharacter.ID
 
-	if err := h.repo.Update(&updatedCharacter); err != nil {
+	if err := h.service.Update(&updatedCharacter); err != nil {
 		h.response.WriteError(w, "Error updating character", http.StatusInternalServerError)
 		return
 	}
@@ -107,13 +107,13 @@ func (h *CharacterHandler) DeleteCharacterHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	_, err = h.repo.GetByID(id)
+	_, err = h.service.GetByID(id)
 	if err != nil {
 		h.response.WriteError(w, "Error retrieving character", http.StatusInternalServerError)
 		return
 	}
 
-	if err := h.repo.Delete(id); err != nil {
+	if err := h.service.Delete(id); err != nil {
 		h.response.WriteError(w, "Error deleting character", http.StatusInternalServerError)
 		return
 	}

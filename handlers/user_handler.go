@@ -6,19 +6,18 @@ import (
 	"strconv"
 
 	"github.com/hilbertgreveling/dnd-character-api/models"
-	"github.com/hilbertgreveling/dnd-character-api/repository"
 	"github.com/hilbertgreveling/dnd-character-api/responses"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/hilbertgreveling/dnd-character-api/services"
 )
 
 type UserHandler struct {
-	repo     repository.UserRepository
+	service  services.UserService
 	response responses.Response
 }
 
-func NewUserHandler(repo repository.UserRepository, response responses.Response) *UserHandler {
+func NewUserHandler(service services.UserService, response responses.Response) *UserHandler {
 	return &UserHandler{
-		repo:     repo,
+		service:  service,
 		response: response,
 	}
 }
@@ -30,24 +29,12 @@ func (h *UserHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		h.response.WriteError(w, "Error hashing password", http.StatusInternalServerError)
-		return
-	}
-	user.Password = string(hashedPassword)
-
-	if err := h.repo.Create(&user); err != nil {
+	if err := h.service.Create(&user); err != nil {
 		h.response.WriteError(w, "Error hashing password", http.StatusInternalServerError)
 		return
 	}
 
-	userResponse := models.UserResponse{
-		ID:       user.ID,
-		Username: user.Username,
-	}
-
-	h.response.WriteResponse(w, userResponse, "User registered successfully", http.StatusCreated)
+	h.response.WriteResponse(w, nil, "User registered successfully", http.StatusCreated)
 }
 
 func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +45,7 @@ func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.repo.GetByID(id)
+	user, err := h.service.GetByID(id)
 	if err != nil {
 		h.response.WriteError(w, "Error retrieving user", http.StatusInternalServerError)
 		return

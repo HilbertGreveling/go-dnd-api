@@ -21,7 +21,28 @@ func (repo *UserRepositorySQLite) Create(user *models.User) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
+}
+
+func (r *UserRepositorySQLite) GetAll() ([]*models.UserResponse, error) {
+	query := "SELECT id, username FROM users"
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*models.UserResponse
+	for rows.Next() {
+		var user models.UserResponse
+		if err := rows.Scan(&user.ID, &user.Username); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	return users, nil
 }
 
 func (repo *UserRepositorySQLite) GetByID(id int) (*models.UserResponse, error) {
@@ -34,5 +55,6 @@ func (repo *UserRepositorySQLite) GetByID(id int) (*models.UserResponse, error) 
 		}
 		return nil, err
 	}
+
 	return user, nil
 }

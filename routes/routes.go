@@ -3,10 +3,9 @@ package routes
 import (
 	"net/http"
 
-	"github.com/hilbertgreveling/dnd-character-api/db"
 	"github.com/hilbertgreveling/dnd-character-api/handlers"
-	"github.com/hilbertgreveling/dnd-character-api/repository/sqlite"
 	"github.com/hilbertgreveling/dnd-character-api/responses"
+	"github.com/hilbertgreveling/dnd-character-api/services"
 )
 
 func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
@@ -15,19 +14,17 @@ func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
 
 	mux.HandleFunc("GET /ping", pingHandler.Ping)
 
-	db := db.GetDB()
 	jsonResponse := responses.NewDefaultJSONResponse()
+	services := services.SetupServices()
 
 	// User
-	userRepo := sqlite.NewUserRepositorySQLite(db)
-	userHandler := handlers.NewUserHandler(userRepo, jsonResponse)
+	userHandler := handlers.NewUserHandler(services.UserService, jsonResponse)
 
 	mux.HandleFunc("POST /users/register", userHandler.RegisterUserHandler)
 	mux.HandleFunc("GET /users/{id}", userHandler.GetUserHandler)
 
 	// Character
-	repo := sqlite.NewCharacterRepositorySQLite(db)
-	characterHandler := handlers.NewCharacterHandler(repo, jsonResponse)
+	characterHandler := handlers.NewCharacterHandler(services.CharacterService, jsonResponse)
 
 	mux.HandleFunc("POST /characters/new", characterHandler.CreateCharacterHandler)
 	mux.HandleFunc("GET /characters", characterHandler.GetAllCharactersHandler)
