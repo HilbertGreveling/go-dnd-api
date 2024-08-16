@@ -58,3 +58,18 @@ func (repo *UserRepositorySQLite) GetByID(id int) (*models.UserResponse, error) 
 
 	return user, nil
 }
+
+func (r *UserRepositorySQLite) GetByUsername(username string) (*models.User, error) {
+	query := `SELECT id, username, password FROM users WHERE username = ?`
+	row := r.db.QueryRow(query, username)
+
+	var user models.User
+	if err := row.Scan(&user.ID, &user.Username, &user.Password); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, errors.New("user not found")
+	}
+
+	return &user, nil
+}

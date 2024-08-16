@@ -17,7 +17,6 @@ func SetupServices() *Services {
 	userRepo := sqlite.NewUserRepositorySQLite(db)
 
 	// TODO: Add policies here
-
 	characterService := NewCharacterService(characterRepo, userRepo)
 	userService := NewUserService(userRepo)
 

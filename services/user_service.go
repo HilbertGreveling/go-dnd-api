@@ -10,6 +10,8 @@ type UserService interface {
 	Create(character *models.User) error
 	GetAll() ([]*models.UserResponse, error)
 	GetByID(id int) (*models.UserResponse, error)
+	GetByUsername(username string) (*models.User, error)
+	CheckPassword(user *models.User, password string) bool
 }
 
 type UserServiceImpl struct {
@@ -36,4 +38,13 @@ func (s *UserServiceImpl) GetAll() ([]*models.UserResponse, error) {
 
 func (s *UserServiceImpl) GetByID(id int) (*models.UserResponse, error) {
 	return s.userRepo.GetByID(id)
+}
+
+func (s *UserServiceImpl) GetByUsername(username string) (*models.User, error) {
+	return s.userRepo.GetByUsername(username)
+}
+
+func (s *UserServiceImpl) CheckPassword(user *models.User, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	return err == nil
 }

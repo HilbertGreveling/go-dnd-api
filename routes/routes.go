@@ -21,6 +21,8 @@ func SetupRoutes(mux *http.ServeMux) *http.ServeMux {
 	userHandler := handlers.NewUserHandler(services.UserService, jsonResponse)
 
 	mux.HandleFunc("POST /users/register", userHandler.RegisterUserHandler)
+	mux.HandleFunc("GET /users/login", userHandler.LoginHandler)
+
 	mux.HandleFunc("GET /users/{id}", userHandler.GetUserHandler)
 
 	// Character
