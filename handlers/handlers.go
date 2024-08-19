@@ -11,23 +11,25 @@ import (
 func SetupHandlers() http.Handler {
 	mux := http.NewServeMux()
 	response := responses.NewDefaultJSONResponse()
+	services := services.SetupServices()
 
 	// Ping
 	pingHandler := NewPingHandler()
 
-	mux.Handle("GET /ping", middleware.AuthMiddleware(http.HandlerFunc(pingHandler.Ping)))
+	mux.Handle("GET /ping", middleware.AuthMiddleware(services.UserService, http.HandlerFunc(pingHandler.Ping)))
 
-	services := services.SetupServices()
+	// Auth
+	authHandler := NewAuthHandler(services.AuthService, response)
 
-	// User
+	mux.HandleFunc("POST /register", authHandler.RegisterHandler)
+	mux.HandleFunc("POST /login", authHandler.LoginHandler)
+
+	// Users
 	userHandler := NewUserHandler(services.UserService, response)
-
-	mux.HandleFunc("POST /register", userHandler.RegisterUserHandler)
-	mux.HandleFunc("POST /login", userHandler.LoginHandler)
 
 	mux.HandleFunc("GET /users/{id}", userHandler.GetUserHandler)
 
-	// Character
+	// Characters
 	characterHandler := NewCharacterHandler(services.CharacterService, response)
 
 	mux.HandleFunc("POST /characters/new", characterHandler.CreateCharacterHandler)

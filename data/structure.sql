@@ -1,7 +1,13 @@
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
+);
+
+CREATE TABLE auth (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     password TEXT NOT NULL
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)  
 );
 
 CREATE TABLE characters (
