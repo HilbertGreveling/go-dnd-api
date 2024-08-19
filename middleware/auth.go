@@ -1,27 +1,50 @@
 package middleware
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
+	"strings"
 
-	"github.com/hilbertgreveling/dnd-character-api/config"
+	"github.com/hilbertgreveling/dnd-character-api/models"
+	"github.com/hilbertgreveling/dnd-character-api/services"
+	"github.com/hilbertgreveling/dnd-character-api/utils"
 )
 
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
+type contextKey string
 
-func AuthMiddleware(next http.Handler) http.Handler {
+const userContextKey contextKey = "user"
+
+func AuthMiddleware(userService services.UserService, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg := config.GetConfig()
-
-		if r.Header.Get("Authorization") != cfg.SecretKey {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(ErrorResponse{Message: "Permission Denied"})
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
 			return
 		}
 
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		claims, err := utils.ValidateJWT(tokenStr)
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		userID := claims.UserID
+
+		user, err := userService.GetByID(userID)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusUnauthorized)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), userContextKey, user)
+		r = r.WithContext(ctx)
+
 		next.ServeHTTP(w, r)
 	})
+}
+
+func GetUserFromContext(ctx context.Context) (*models.User, bool) {
+	user, ok := ctx.Value(userContextKey).(*models.User)
+	return user, ok
 }

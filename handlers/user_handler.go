@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
-	"github.com/hilbertgreveling/dnd-character-api/models"
 	"github.com/hilbertgreveling/dnd-character-api/responses"
 	"github.com/hilbertgreveling/dnd-character-api/services"
 )
@@ -20,21 +18,6 @@ func NewUserHandler(service services.UserService, response responses.Response) *
 		service:  service,
 		response: response,
 	}
-}
-
-func (h *UserHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
-	var user models.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		h.response.WriteError(w, "Invalid request payload", http.StatusInternalServerError)
-		return
-	}
-
-	if err := h.service.Create(&user); err != nil {
-		h.response.WriteError(w, "Error hashing password", http.StatusInternalServerError)
-		return
-	}
-
-	h.response.WriteResponse(w, nil, "User registered successfully", http.StatusCreated)
 }
 
 func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
