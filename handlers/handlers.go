@@ -1,31 +1,34 @@
-package routes
+package handlers
 
 import (
 	"net/http"
 
-	"github.com/hilbertgreveling/dnd-character-api/handlers"
+	"github.com/hilbertgreveling/dnd-character-api/middleware"
 	"github.com/hilbertgreveling/dnd-character-api/responses"
 	"github.com/hilbertgreveling/dnd-character-api/services"
 )
 
-func SetupRoutes(mux *http.ServeMux, response responses.Response) *http.ServeMux {
-	// Ping
-	pingHandler := handlers.NewPingHandler()
+func SetupHandlers() http.Handler {
+	mux := http.NewServeMux()
+	response := responses.NewDefaultJSONResponse()
 
-	mux.HandleFunc("GET /ping", pingHandler.Ping)
+	// Ping
+	pingHandler := NewPingHandler()
+
+	mux.Handle("GET /ping", middleware.AuthMiddleware(http.HandlerFunc(pingHandler.Ping)))
 
 	services := services.SetupServices()
 
 	// User
-	userHandler := handlers.NewUserHandler(services.UserService, response)
+	userHandler := NewUserHandler(services.UserService, response)
 
-	mux.HandleFunc("POST /users/register", userHandler.RegisterUserHandler)
-	mux.HandleFunc("GET /users/login", userHandler.LoginHandler)
+	mux.HandleFunc("POST /register", userHandler.RegisterUserHandler)
+	mux.HandleFunc("POST /login", userHandler.LoginHandler)
 
 	mux.HandleFunc("GET /users/{id}", userHandler.GetUserHandler)
 
 	// Character
-	characterHandler := handlers.NewCharacterHandler(services.CharacterService, response)
+	characterHandler := NewCharacterHandler(services.CharacterService, response)
 
 	mux.HandleFunc("POST /characters/new", characterHandler.CreateCharacterHandler)
 	mux.HandleFunc("GET /characters", characterHandler.GetAllCharactersHandler)
@@ -33,5 +36,10 @@ func SetupRoutes(mux *http.ServeMux, response responses.Response) *http.ServeMux
 	mux.HandleFunc("PUT /characters/{id}", characterHandler.UpdateCharacterHandler)
 	mux.HandleFunc("DELETE /characters/{id}", characterHandler.DeleteCharacterHandler)
 
-	return mux
+	stack := middleware.CreateStack(
+		middleware.CORS,
+		middleware.Logging,
+	)
+
+	return stack(mux)
 }

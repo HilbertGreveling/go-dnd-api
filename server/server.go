@@ -4,9 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/hilbertgreveling/dnd-character-api/middleware"
-	"github.com/hilbertgreveling/dnd-character-api/responses"
-	"github.com/hilbertgreveling/dnd-character-api/routes"
+	"github.com/hilbertgreveling/dnd-character-api/handlers"
 )
 
 type APIServer struct {
@@ -18,19 +16,9 @@ func NewAPIServer(addr string) *APIServer {
 }
 
 func (s *APIServer) Serve() {
-	mux := http.NewServeMux()
-	response := responses.NewDefaultJSONResponse()
-	mux = routes.SetupRoutes(mux, response)
-
-	stack := middleware.CreateStack(
-		middleware.CORS,
-		middleware.AuthMiddleware,
-		middleware.Logging,
-	)
-
 	server := http.Server{
 		Addr:    s.addr,
-		Handler: stack(mux),
+		Handler: handlers.SetupHandlers(),
 	}
 
 	if err := server.ListenAndServe(); err != nil {
