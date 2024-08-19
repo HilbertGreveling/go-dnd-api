@@ -21,8 +21,6 @@ func InitDB(addr string) {
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Could not ping the database: %v", err)
 	}
-
-	log.Printf("Database OK!")
 }
 
 func GetDB() *sql.DB {

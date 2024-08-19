@@ -21,15 +21,11 @@ func LoadConfig() *Config {
 		log.Fatal("Config: Error loading .env file")
 	}
 
-	log.Printf("Loaded .env file")
-
 	cfg = &Config{
 		ServerAddress: getEnv("SERVER_ADDRESS"),
 		DatabasePath:  getEnv("DATABASE_PATH"),
 		SecretKey:     getEnv("SECRET_KEY"),
 	}
-
-	log.Printf("Set env variables")
 
 	return cfg
 }

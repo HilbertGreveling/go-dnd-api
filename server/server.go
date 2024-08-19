@@ -21,9 +21,9 @@ func (s *APIServer) Serve() {
 		Handler: handlers.SetupHandlers(),
 	}
 
+	log.Printf("Server running on %s", s.addr)
+
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Could not start server: %v", err)
 	}
-
-	log.Printf("Server running on %s", s.addr)
 }
