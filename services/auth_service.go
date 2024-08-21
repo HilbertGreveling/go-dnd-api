@@ -44,8 +44,8 @@ func (s *AuthServiceImpl) RegisterUser(user models.User, password string) error 
 	}
 
 	authUser := models.Auth{
-		ID:       id,
 		Password: string(hashedPassword),
+		UserID:   id,
 	}
 
 	if err := s.authRepo.Create(authUser); err != nil {
