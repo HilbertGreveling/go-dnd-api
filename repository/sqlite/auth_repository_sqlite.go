@@ -40,7 +40,7 @@ func (r *AuthRepositorySQLite) GetByUsername(username string) (*models.Auth, err
 
 func (r *AuthRepositorySQLite) GetByID(id int) (*models.Auth, error) {
 	var auth models.Auth
-	query := `SELECT id, password, user_id FROM auth WHERE id = ?`
+	query := `SELECT id, password, user_id FROM auth WHERE user_id = ?`
 	err := r.db.QueryRow(query, id).Scan(&auth.ID, &auth.Password, &auth.UserID)
 	if err != nil {
 		return nil, err

@@ -91,7 +91,7 @@ func (h *CharacterHandler) UpdateCharacterHandler(w http.ResponseWriter, r *http
 
 	updatedCharacter.ID = existingCharacter.ID
 
-	if err := h.service.Update(&updatedCharacter); err != nil {
+	if err := h.service.Update(&updatedCharacter, r.Context()); err != nil {
 		h.response.WriteError(w, "Error updating character", http.StatusInternalServerError)
 		return
 	}
@@ -107,13 +107,13 @@ func (h *CharacterHandler) DeleteCharacterHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	_, err = h.service.GetByID(id)
+	character, err := h.service.GetByID(id)
 	if err != nil {
 		h.response.WriteError(w, "Error retrieving character", http.StatusInternalServerError)
 		return
 	}
 
-	if err := h.service.Delete(id); err != nil {
+	if err := h.service.Delete(character, r.Context()); err != nil {
 		h.response.WriteError(w, "Error deleting character", http.StatusInternalServerError)
 		return
 	}

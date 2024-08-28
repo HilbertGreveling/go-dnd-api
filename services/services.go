@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/hilbertgreveling/dnd-character-api/db"
+	"github.com/hilbertgreveling/dnd-character-api/policies"
 	"github.com/hilbertgreveling/dnd-character-api/repository/sqlite"
 )
 
@@ -18,8 +19,9 @@ func SetupServices() *Services {
 	userRepo := sqlite.NewUserRepositorySQLite(db)
 	authRepo := sqlite.NewAuthRepositorySQLite(db)
 
-	// TODO: Add policies here
-	characterService := NewCharacterService(characterRepo, userRepo)
+	characterPolicy := policies.NewCharacterPolicy()
+
+	characterService := NewCharacterService(characterRepo, userRepo, characterPolicy)
 	userService := NewUserService(userRepo)
 	authService := NewAuthService(authRepo, userRepo)
 

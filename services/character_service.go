@@ -1,29 +1,34 @@
 package services
 
 import (
+	"context"
 	"errors"
 
 	"github.com/hilbertgreveling/dnd-character-api/models"
+	"github.com/hilbertgreveling/dnd-character-api/policies"
 	"github.com/hilbertgreveling/dnd-character-api/repository"
+	"github.com/hilbertgreveling/dnd-character-api/utils"
 )
 
 type CharacterService interface {
 	Create(character *models.Character) error
 	GetAll() ([]*models.Character, error)
 	GetByID(id int) (*models.Character, error)
-	Update(character *models.Character) error
-	Delete(id int) error
+	Update(character *models.Character, ctx context.Context) error
+	Delete(character *models.Character, ctx context.Context) error
 }
 
 type characterServiceImpl struct {
-	characterRepo repository.CharacterRepository
-	userRepo      repository.UserRepository
+	characterRepo   repository.CharacterRepository
+	userRepo        repository.UserRepository
+	characterPolicy policies.CharacterPolicy
 }
 
-func NewCharacterService(characterRepo repository.CharacterRepository, userRepo repository.UserRepository) CharacterService {
+func NewCharacterService(characterRepo repository.CharacterRepository, userRepo repository.UserRepository, characterPolicy policies.CharacterPolicy) CharacterService {
 	return &characterServiceImpl{
-		characterRepo: characterRepo,
-		userRepo:      userRepo,
+		characterRepo:   characterRepo,
+		userRepo:        userRepo,
+		characterPolicy: characterPolicy,
 	}
 }
 
@@ -43,10 +48,28 @@ func (s *characterServiceImpl) GetByID(id int) (*models.Character, error) {
 	return s.characterRepo.GetByID(id)
 }
 
-func (s *characterServiceImpl) Update(character *models.Character) error {
+func (s *characterServiceImpl) Update(character *models.Character, ctx context.Context) error {
+	userID, err := utils.GetUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !s.characterPolicy.CanEdit(userID, character) {
+		return errors.New("permission denied: cannot update this character")
+	}
+
 	return s.characterRepo.Update(character)
 }
 
-func (s *characterServiceImpl) Delete(id int) error {
-	return s.characterRepo.Delete(id)
+func (s *characterServiceImpl) Delete(character *models.Character, ctx context.Context) error {
+	userID, err := utils.GetUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !s.characterPolicy.CanDelete(userID, character) {
+		return errors.New("permission denied: cannot delete this character")
+	}
+
+	return s.characterRepo.Delete(character.ID)
 }

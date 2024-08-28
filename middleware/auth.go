@@ -5,14 +5,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hilbertgreveling/dnd-character-api/models"
 	"github.com/hilbertgreveling/dnd-character-api/services"
 	"github.com/hilbertgreveling/dnd-character-api/utils"
 )
 
-type contextKey string
+type ContextKey string
 
-const userContextKey contextKey = "user"
+const UserIDKey ContextKey = "userID"
 
 func AuthMiddleware(userService services.UserService, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -37,14 +36,9 @@ func AuthMiddleware(userService services.UserService, next http.Handler) http.Ha
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), userContextKey, user)
+		ctx := context.WithValue(r.Context(), UserIDKey, user)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-func GetUserFromContext(ctx context.Context) (*models.User, bool) {
-	user, ok := ctx.Value(userContextKey).(*models.User)
-	return user, ok
 }
